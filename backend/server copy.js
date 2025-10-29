@@ -12,7 +12,11 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  origin: [
+    process.env.FRONTEND_URL,
+    "https://primiya-art.vercel.app",
+    "http://localhost:5173"
+  ].filter(Boolean),
   credentials: true
 }));
 app.use(express.json());
@@ -67,7 +71,8 @@ const emailTransporter = nodemailer.createTransport({
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
-// Email templates
+
+// Email templates - FIXED: Removed req.ip reference
 const sendWelcomeEmail = async (user) => {
   try {
     const mailOptions = {
@@ -117,9 +122,9 @@ const sendWelcomeEmail = async (user) => {
     };
 
     await emailTransporter.sendMail(mailOptions);
-    console.log(`Welcome email sent to ${user.email}`);
+    console.log(`✅ Welcome email sent to ${user.email}`);
   } catch (error) {
-    console.error('Error sending welcome email:', error);
+    console.error('❌ Error sending welcome email:', error);
   }
 };
 
@@ -131,27 +136,25 @@ const sendLoginNotificationEmail = async (user, loginMethod = 'email') => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: user.email,
-      subject: 'Login Notification - Primiya\'s Art',
+      subject: 'Login Confirmation - Primiya\'s Art',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="text-align: center; margin-bottom: 20px;">
-            <h2 style="color: #9333ea; margin: 0;">Login Activity</h2>
+            <h2 style="color: #9333ea; margin: 0;">Login Confirmed</h2>
           </div>
           
           <div style="background-color: #f8fafc; border-radius: 8px; padding: 20px;">
             <h3 style="color: #9333ea; margin-top: 0;">Hello ${user.name},</h3>
-            <p>We noticed a recent login to your Primiya's Art account.</p>
+            <p>You have successfully logged into your Primiya's Art account.</p>
             
             <div style="background-color: white; border: 1px solid #e5e5e5; border-radius: 6px; padding: 15px; margin: 15px 0;">
-              <p style="margin: 0; font-weight: bold; color: #9333ea;">Login Details:</p>
-              <p style="margin: 8px 0;"><strong>Time:</strong> ${new Date().toLocaleString()}</p>
-              <p style="margin: 8px 0;"><strong>Login Method:</strong> ${methodText}</p>
-              <p style="margin: 8px 0;"><strong>IP Address:</strong> ${req.ip || 'Unknown'}</p>
+              <p style="margin: 0; font-weight: bold; color: #9333ea;">Login Confirmed:</p>
+              <p style="margin: 8px 0;">Your login was successful using ${methodText}.</p>
             </div>
             
             <p>If this was you, no action is needed.</p>
             <p style="color: #dc2626; font-weight: bold;">
-              If you don't recognize this activity, please contact us immediately.
+              If you don't recognize this login activity, please contact us immediately.
             </p>
           </div>
           
@@ -165,12 +168,11 @@ const sendLoginNotificationEmail = async (user, loginMethod = 'email') => {
     };
 
     await emailTransporter.sendMail(mailOptions);
-    console.log(`Login notification sent to ${user.email}`);
+    console.log(`✅ Login confirmation sent to ${user.email}`);
   } catch (error) {
-    console.error('Error sending login notification email:', error);
+    console.error('❌ Error sending login confirmation email:', error);
   }
 };
-
 const sendSocialLoginWelcomeEmail = async (user, provider) => {
   try {
     const providerText = provider === 'google' ? 'Google' : 'Facebook';
@@ -223,11 +225,12 @@ const sendSocialLoginWelcomeEmail = async (user, provider) => {
     };
 
     await emailTransporter.sendMail(mailOptions);
-    console.log(`Social welcome email sent to ${user.email} for ${provider}`);
+    console.log(`✅ Social welcome email sent to ${user.email} for ${provider}`);
   } catch (error) {
-    console.error('Error sending social welcome email:', error);
+    console.error('❌ Error sending social welcome email:', error);
   }
 };
+
 // Send OTP for password reset
 app.post('/api/auth/forgot-password', async (req, res) => {
   try {
@@ -394,9 +397,6 @@ app.post('/api/auth/reset-password', async (req, res) => {
   }
 });
 
-// ... rest of your existing routes (Google login, normal login, etc.) remain the same
-
-// Google Login API - Updated to handle profile data directly
 // Google Login API - Updated with email notifications
 app.post('/api/auth/google', async (req, res) => {
   try {
@@ -443,8 +443,9 @@ app.post('/api/auth/google', async (req, res) => {
         await user.save();
       }
       
-      // Send login notification for existing user
-      sendLoginNotificationEmail(user, 'google').catch(console.error);
+      // Send login notification for existing user - FIXED: Pass req.ip
+ // Update this line in Google login:
+sendLoginNotificationEmail(user, 'google').catch(console.error);
     }
 
     // Generate JWT token
@@ -521,9 +522,9 @@ app.post('/api/auth/facebook', async (req, res) => {
         await user.save();
       }
       
-      // Send login notification for existing user
-      sendLoginNotificationEmail(user, 'facebook').catch(console.error);
-    }
+      // Send login notification for existing user - FIXED: Pass req.ip
+// Update this line in Facebook login:
+sendLoginNotificationEmail(user, 'facebook').catch(console.error);    }
 
     // Generate JWT token
     const jwtToken = jwt.sign(
@@ -662,7 +663,6 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-// Normal Login
 // Normal Login - Updated with email notification
 app.post('/api/auth/login', async (req, res) => {
   try {
@@ -684,8 +684,9 @@ app.post('/api/auth/login', async (req, res) => {
       { expiresIn: '7d' }
     );
     
-    // Send login notification email
-    sendLoginNotificationEmail(user, 'email').catch(console.error);
+    // Send login notification email - FIXED: Pass req.ip
+   // Update this line in normal login:
+sendLoginNotificationEmail(user, 'email').catch(console.error);
     
     res.json({
       success: true,

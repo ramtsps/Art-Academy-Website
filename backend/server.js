@@ -1,12 +1,9 @@
-const express = require('express');
-const cors = require('cors');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
-const crypto = require('crypto');
-const nodemailer = require('nodemailer');
-
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
+import nodemailer from 'nodemailer';
 
 const app = express();
 
@@ -58,7 +55,7 @@ const User = mongoose.model('User', userSchema);
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret-key';
 
-// Fix: Changed from createTransporter to createTransport
+// Email transporter
 const emailTransporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -72,7 +69,7 @@ const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// Email templates - FIXED: Removed req.ip reference
+// Email templates
 const sendWelcomeEmail = async (user) => {
   try {
     const mailOptions = {
@@ -173,6 +170,7 @@ const sendLoginNotificationEmail = async (user, loginMethod = 'email') => {
     console.error('❌ Error sending login confirmation email:', error);
   }
 };
+
 const sendSocialLoginWelcomeEmail = async (user, provider) => {
   try {
     const providerText = provider === 'google' ? 'Google' : 'Facebook';
@@ -397,7 +395,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
   }
 });
 
-// Google Login API - Updated with email notifications
+// Google Login API
 app.post('/api/auth/google', async (req, res) => {
   try {
     const { profile } = req.body;
@@ -443,9 +441,8 @@ app.post('/api/auth/google', async (req, res) => {
         await user.save();
       }
       
-      // Send login notification for existing user - FIXED: Pass req.ip
- // Update this line in Google login:
-sendLoginNotificationEmail(user, 'google').catch(console.error);
+      // Send login notification for existing user
+      sendLoginNotificationEmail(user, 'google').catch(console.error);
     }
 
     // Generate JWT token
@@ -476,6 +473,7 @@ sendLoginNotificationEmail(user, 'google').catch(console.error);
   }
 });
 
+// Facebook Login API
 app.post('/api/auth/facebook', async (req, res) => {
   try {
     const { profile } = req.body;
@@ -522,9 +520,9 @@ app.post('/api/auth/facebook', async (req, res) => {
         await user.save();
       }
       
-      // Send login notification for existing user - FIXED: Pass req.ip
-// Update this line in Facebook login:
-sendLoginNotificationEmail(user, 'facebook').catch(console.error);    }
+      // Send login notification for existing user
+      sendLoginNotificationEmail(user, 'facebook').catch(console.error);
+    }
 
     // Generate JWT token
     const jwtToken = jwt.sign(
@@ -554,66 +552,7 @@ sendLoginNotificationEmail(user, 'facebook').catch(console.error);    }
   }
 });
 
-// Facebook callback route
-app.get('/api/auth/facebook/callback', async (req, res) => {
-  try {
-    const { code } = req.query;
-    
-    if (!code) {
-      return res.redirect(`${process.env.FRONTEND_URL}/login?error=facebook_auth_failed`);
-    }
-
-    // Exchange code for access token
-    const tokenResponse = await fetch(`https://graph.facebook.com/v18.0/oauth/access_token?client_id=${process.env.FACEBOOK_APP_ID}&client_secret=${process.env.FACEBOOK_APP_SECRET}&code=${code}&redirect_uri=${process.env.FRONTEND_URL}/auth/facebook/callback`);
-    const tokenData = await tokenResponse.json();
-
-    if (tokenData.error) {
-      return res.redirect(`${process.env.FRONTEND_URL}/login?error=facebook_token_failed`);
-    }
-
-    // Get user info
-    const userResponse = await fetch(`https://graph.facebook.com/me?fields=id,name,email,picture.type(large)&access_token=${tokenData.access_token}`);
-    const userData = await userResponse.json();
-
-    // Find or create user (same logic as your existing Facebook route)
-    let user = await User.findOne({ 
-      $or: [
-        { email: userData.email },
-        { facebookId: userData.id }
-      ] 
-    });
-
-    if (!user) {
-      user = new User({
-        facebookId: userData.id,
-        name: userData.name,
-        email: userData.email,
-        avatar: userData.picture?.data?.url,
-        provider: 'facebook'
-      });
-      await user.save();
-    }
-
-    // Generate JWT token
-    const jwtToken = jwt.sign(
-      { 
-        userId: user._id, 
-        email: user.email 
-      },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    // Redirect to frontend with token
-    res.redirect(`${process.env.FRONTEND_URL}/auth/success?token=${jwtToken}`);
-
-  } catch (error) {
-    console.error('Facebook callback error:', error);
-    res.redirect(`${process.env.FRONTEND_URL}/login?error=facebook_auth_failed`);
-  }
-});
-
-// Normal Registration - Updated with email
+// Normal Registration
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -644,7 +583,7 @@ app.post('/api/auth/register', async (req, res) => {
       { expiresIn: '7d' }
     );
     
-    // Send welcome email (don't await to avoid delaying response)
+    // Send welcome email
     sendWelcomeEmail(user).catch(console.error);
     
     res.json({
@@ -663,7 +602,7 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-// Normal Login - Updated with email notification
+// Normal Login
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -684,9 +623,8 @@ app.post('/api/auth/login', async (req, res) => {
       { expiresIn: '7d' }
     );
     
-    // Send login notification email - FIXED: Pass req.ip
-   // Update this line in normal login:
-sendLoginNotificationEmail(user, 'email').catch(console.error);
+    // Send login notification email
+    sendLoginNotificationEmail(user, 'email').catch(console.error);
     
     res.json({
       success: true,
@@ -743,7 +681,7 @@ app.get('/api/auth/me', verifyToken, async (req, res) => {
   }
 });
 
-// Health check endpoint to test DB connection
+// Health check endpoint
 app.get('/api/health', async (req, res) => {
   try {
     // Try to ping the database
@@ -764,23 +702,14 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Primiya Art API is running!',
+    version: '1.0.0',
+    timestamp: new Date().toISOString()
+  });
+});
 
-// Start server only after checking initial connection
-const startServer = async () => {
-  try {
-    // Wait a moment for MongoDB to connect
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📊 MongoDB status: ${mongoose.connection.readyState === 1 ? 'Connected ✅' : 'Connecting...'}`);
-      console.log(`🌐 Health check: http://localhost:${PORT}/api/health`);
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  }
-};
-
-startServer();
+// Export the app for Vercel serverless
+export default app;

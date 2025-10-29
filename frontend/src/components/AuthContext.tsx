@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         appId: import.meta.env.VITE_FACEBOOK_APP_ID,
         cookie: true,
         xfbml: true,
-        version: import.meta.env.VITE_FACEBOOK_API_VERSION || 'v18.0',
+        version: 'v18.0',
         autoLogAppEvents: true,
         status: false // Don't check login status automatically
       });
