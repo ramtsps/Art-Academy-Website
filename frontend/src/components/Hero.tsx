@@ -2,7 +2,11 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Button } from './ui/button';
 import { Sparkles, ArrowRight } from 'lucide-react';
 
-export function Hero() {
+interface HeroProps {
+  onNavigate?: (page: string) => void;
+}
+
+export function Hero({ onNavigate }: HeroProps = {}) {
   return (
     <div className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
@@ -24,11 +28,18 @@ export function Hero() {
             </p>
             
             <div className="flex flex-wrap gap-4 pt-4">
-              <Button className="bg-purple-600 hover:bg-purple-700 text-lg px-8 py-6">
+              <Button 
+                onClick={() => onNavigate?.('enrollment')}
+                className="bg-purple-600 hover:bg-purple-700 text-lg px-8 py-6"
+              >
                 Start Your Journey
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
-              <Button variant="outline" className="text-lg px-8 py-6 border-2 border-purple-600 text-purple-600 hover:bg-purple-50">
+              <Button 
+                onClick={() => onNavigate?.('products')}
+                variant="outline" 
+                className="text-lg px-8 py-6 border-2 border-purple-600 text-purple-600 hover:bg-purple-50"
+              >
                 View Classes
               </Button>
             </div>

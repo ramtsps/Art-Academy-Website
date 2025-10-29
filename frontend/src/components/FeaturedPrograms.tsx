@@ -11,9 +11,14 @@ import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Clock, Users, ArrowRight } from 'lucide-react';
 
-export function FeaturedPrograms() {
+interface FeaturedProgramsProps {
+  onProgramClick?: (programId: string) => void;
+}
+
+export function FeaturedPrograms({ onProgramClick }: FeaturedProgramsProps) {
   const programs = [
     {
+      id: 'acrylic-painting',
       title: 'Acrylic Painting',
       description: 'Master the vibrant world of acrylic paints with hands-on techniques and creative projects.',
       image: 'https://images.unsplash.com/photo-1614900157270-a0c14fadaeaa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhY3J5bGljJTIwcGFpbnRpbmclMjBjYW52YXN8ZW58MXx8fHwxNzYxNTg1NDYwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
@@ -23,6 +28,7 @@ export function FeaturedPrograms() {
       badge: 'Popular',
     },
     {
+      id: 'drawing-sketching',
       title: 'Drawing & Sketching',
       description: 'Develop fundamental drawing skills from basic shapes to advanced shading techniques.',
       image: 'https://images.unsplash.com/photo-1761039894388-3ef2606bffbd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxza2V0Y2hpbmclMjBwZW5jaWxzJTIwZHJhd2luZ3xlbnwxfHx8fDE3NjE1ODU0NjB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
@@ -32,6 +38,7 @@ export function FeaturedPrograms() {
       badge: 'Beginner Friendly',
     },
     {
+      id: 'sculpture-3d',
       title: 'Sculpture & 3D Art',
       description: 'Bring your imagination to life with clay modeling, sculpting, and 3D art creation.',
       image: 'https://images.unsplash.com/photo-1758522277401-5a11fb4499f2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjbGF5JTIwc2N1bHB0dXJlJTIwYXJ0fGVufDF8fHx8MTc2MTU4NTQ1OXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
@@ -41,6 +48,7 @@ export function FeaturedPrograms() {
       badge: 'Hands-On',
     },
     {
+      id: 'digital-art',
       title: 'Digital Art',
       description: 'Explore modern art creation with digital tablets and professional design software.',
       image: 'https://images.unsplash.com/photo-1680123586261-b9ea69f1c070?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkaWdpdGFsJTIwZHJhd2luZyUyMHRhYmxldHxlbnwxfHx8fDE3NjE0OTQxNjl8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
@@ -50,6 +58,7 @@ export function FeaturedPrograms() {
       badge: 'Tech Savvy',
     },
     {
+      id: 'watercolor-techniques',
       title: 'Watercolor Techniques',
       description: 'Learn the delicate art of watercolor painting with expert guidance and creative freedom.',
       image: 'https://images.unsplash.com/photo-1713815539197-78db123d8f3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3YXRlcmNvbG9yJTIwcGFpbnRpbmd8ZW58MXx8fHwxNzYxNDgwNjI5fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
@@ -59,6 +68,7 @@ export function FeaturedPrograms() {
       badge: 'New',
     },
     {
+      id: 'mixed-media',
       title: 'Mixed Media Art',
       description: 'Combine different materials and techniques to create unique, multi-dimensional artworks.',
       image: 'https://images.unsplash.com/photo-1542978415-64bbba6025c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnQlMjBzdXBwbGllcyUyMGNvbG9yZnVsfGVufDF8fHx8MTc2MTU1MjM1OHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
@@ -115,7 +125,10 @@ export function FeaturedPrograms() {
                       </div>
                     </div>
 
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700">
+                    <Button 
+                      className="w-full bg-purple-600 hover:bg-purple-700"
+                      onClick={() => onProgramClick?.(program.id)}
+                    >
                       Learn More
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>

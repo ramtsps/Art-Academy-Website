@@ -1,6 +1,10 @@
 import { Palette, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 
-export function Footer() {
+interface FooterProps {
+  onNavigate?: (page: string) => void;
+}
+
+export function Footer({ onNavigate }: FooterProps = { onNavigate: undefined }) {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -18,10 +22,46 @@ export function Footer() {
           <div>
             <h3 className="mb-4">Quick Links</h3>
             <ul className="space-y-2 text-gray-400">
-              <li><a href="#" className="hover:text-white transition-colors">Home</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">About</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Classes</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Locations</a></li>
+              <li>
+                <button 
+                  onClick={() => onNavigate?.('home')}
+                  className="hover:text-white transition-colors"
+                >
+                  Home
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => onNavigate?.('about')}
+                  className="hover:text-white transition-colors"
+                >
+                  About
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => onNavigate?.('products')}
+                  className="hover:text-white transition-colors"
+                >
+                  Classes
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => onNavigate?.('locations')}
+                  className="hover:text-white transition-colors"
+                >
+                  Locations
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => onNavigate?.('contact')}
+                  className="hover:text-white transition-colors"
+                >
+                  Contact
+                </button>
+              </li>
             </ul>
           </div>
 
