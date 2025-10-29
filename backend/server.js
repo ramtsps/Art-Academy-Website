@@ -14,7 +14,7 @@ const app = express();
 app.use(cors({
   origin: [
     process.env.FRONTEND_URL,
-    "https://primiyas-art.vercel.app/",
+    "https://primiyas-art.vercel.app",
     "http://localhost:5173"
   ].filter(Boolean),
   credentials: true
