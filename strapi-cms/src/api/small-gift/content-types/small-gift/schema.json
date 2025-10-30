@@ -1,0 +1,48 @@
+{
+  "kind": "collectionType",
+  "collectionName": "small_gifts",
+  "info": {
+    "singularName": "small-gift",
+    "pluralName": "small-gifts",
+    "displayName": "Small Gift"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name"
+    },
+    "price": {
+      "type": "decimal"
+    },
+    "description": {
+      "type": "text"
+    },
+    "imageUrl": {
+      "type": "string"
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "Small Gifts",
+        "Art Supplies",
+        "Return Gifts & Party Favors"
+      ]
+    },
+    "featured": {
+      "type": "boolean"
+    },
+    "inStock": {
+      "type": "boolean"
+    },
+    "stockQuantity": {
+      "type": "integer"
+    }
+  }
+}

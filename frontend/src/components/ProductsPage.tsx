@@ -5,6 +5,34 @@ import { Badge } from './ui/badge';
 import { ShoppingCart, Clock, Users, Star } from 'lucide-react';
 import { useCart } from './CartContext';
 import { toast } from 'sonner@2.0.3';
+import { useEffect, useState } from 'react';
+
+
+interface Product {
+  id: number;
+  documentId: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  name: string;
+  slug: string;
+  price: number;
+  items?: string;
+  description: string;
+  category: string;
+  imageUrl?: string | null;
+  featured?: boolean | null;
+  inStock?: boolean | null;
+  stockQuantity?: number | null;
+  // For classes
+  ageRange?: string;
+  duration?: string;
+  maxStudents?: string;
+  rating?: number;
+  popular?: boolean;
+  // For gifts
+  quantity?: string;
+}
 
 interface ProductsPageProps {
   onNavigate?: (page: string) => void;
@@ -12,200 +40,56 @@ interface ProductsPageProps {
 
 export function ProductsPage({ onNavigate }: ProductsPageProps = {}) {
   const { addToCart } = useCart();
-  const classes = [
-    {
-      id: 'painting-basics',
-      title: 'Painting Basics',
-      age: '5-7 years',
-      duration: '8 weeks',
-      price: 240,
-      students: '12 max',
-      rating: 4.9,
-      description: 'Introduction to watercolors, acrylics, and basic painting techniques.',
-      popular: true,
-    },
-    {
-      id: 'drawing-fundamentals',
-      title: 'Drawing Fundamentals',
-      age: '6-9 years',
-      duration: '10 weeks',
-      price: 280,
-      students: '15 max',
-      rating: 4.8,
-      description: 'Learn sketching, shading, and perspective drawing.',
-      popular: false,
-    },
-    {
-      id: 'creative-mixed-media',
-      title: 'Creative Mixed Media',
-      age: '8-12 years',
-      duration: '12 weeks',
-      price: 320,
-      students: '10 max',
-      rating: 5.0,
-      description: 'Explore collage, printmaking, and experimental art techniques.',
-      popular: true,
-    },
-    {
-      id: 'sculpture-3d-art',
-      title: 'Sculpture & 3D Art',
-      age: '9-13 years',
-      duration: '10 weeks',
-      price: 340,
-      students: '10 max',
-      rating: 4.9,
-      description: 'Work with clay, paper mache, and other 3D materials.',
-      popular: false,
-    },
-    {
-      id: 'digital-art-design',
-      title: 'Digital Art & Design',
-      age: '10-14 years',
-      duration: '8 weeks',
-      price: 360,
-      students: '12 max',
-      rating: 4.7,
-      description: 'Introduction to digital drawing tablets and design software.',
-      popular: true,
-    },
-    {
-      id: 'animation-workshop',
-      title: 'Animation Workshop',
-      age: '11-15 years',
-      duration: '12 weeks',
-      price: 400,
-      students: '8 max',
-      rating: 5.0,
-      description: 'Learn stop-motion and digital animation basics.',
-      popular: false,
-    },
-  ];
+  
+  const [classes, setClasses] = useState<Product[]>([]);
+  const [supplies, setSupplies] = useState<Product[]>([]);
+  const [smallGifts, setSmallGifts] = useState<Product[]>([]);
+  const [returnGifts, setReturnGifts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const supplies = [
-    {
-      id: 'beginner-art-kit',
-      name: 'Beginner Art Kit',
-      price: 45,
-      items: '20+ items',
-      description: 'Everything needed to start painting and drawing.',
-      category: 'Art Supplies',
-    },
-    {
-      id: 'premium-paint-set',
-      name: 'Premium Paint Set',
-      price: 75,
-      items: '36 colors',
-      description: 'Professional-grade acrylic paints and brushes.',
-      category: 'Art Supplies',
-    },
-    {
-      id: 'sketch-master-pack',
-      name: 'Sketch Master Pack',
-      price: 35,
-      items: '15+ items',
-      description: 'Complete sketching and drawing supplies.',
-      category: 'Art Supplies',
-    },
-    {
-      id: 'sculpture-starter-kit',
-      name: 'Sculpture Starter Kit',
-      price: 60,
-      items: '25+ items',
-      description: 'Clay, tools, and accessories for 3D art.',
-      category: 'Art Supplies',
-    },
-  ];
+  // Fetch data from your backend API
+ useEffect(() => {
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      
+      // Use environment variables
+      const baseUrl = import.meta.env.VITE_API_URL|| 'http://localhost:5000/api';
+      
+      const [classesRes, suppliesRes, giftsRes, returnGiftsRes] = await Promise.all([
+        fetch(`${baseUrl}/art-classes`),
+        fetch(`${baseUrl}/art-supplies`),
+        fetch(`${baseUrl}/small-gifts`),
+        fetch(`${baseUrl}/return-gifts`)
+      ]);
 
-  const smallGifts = [
-    {
-      id: 'mini-art-set',
-      name: 'Mini Art Set',
-      price: 12,
-      image: 'https://images.unsplash.com/photo-1744898130445-e6ccb0df1ba0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xvcmZ1bCUyMHN0YXRpb25lcnklMjBnaWZ0c3xlbnwxfHx8fDE3NjE1ODU3MDV8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-      description: 'Compact art kit with crayons, pencils, and mini sketchpad.',
-      category: 'Small Gifts',
-    },
-    {
-      id: 'creative-sticker-pack',
-      name: 'Creative Sticker Pack',
-      price: 8,
-      image: 'https://images.unsplash.com/photo-1667864811044-b0bcd9ed4a46?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxnaWZ0JTIwYm94JTIwd3JhcHBlZCUyMGNvbG9yZnVsfGVufDF8fHx8MTc2MTU4NTcwNHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-      description: '200+ colorful art-themed stickers for decorating.',
-      category: 'Small Gifts',
-    },
-    {
-      id: 'watercolor-pocket-set',
-      name: 'Watercolor Pocket Set',
-      price: 15,
-      image: 'https://images.unsplash.com/photo-1759433581610-801ca7bbd28f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxraWRzJTIwcGFydHklMjBnaWZ0c3xlbnwxfHx8fDE3NjE1ODU3MDR8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-      description: 'Portable watercolor palette with brush and paper.',
-      category: 'Small Gifts',
-    },
-    {
-      id: 'diy-keychain-kit',
-      name: 'DIY Keychain Kit',
-      price: 10,
-      image: 'https://images.unsplash.com/photo-1760220844423-0b449a6c51be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYXJ0eSUyMGZhdm9yJTIwYmFnc3xlbnwxfHx8fDE3NjE1ODU3MDR8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-      description: 'Create your own artistic keychains with beads and charms.',
-      category: 'Small Gifts',
-    },
-    {
-      id: 'art-journal-mini',
-      name: 'Art Journal Mini',
-      price: 14,
-      image: 'https://images.unsplash.com/photo-1744898130445-e6ccb0df1ba0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xvcmZ1bCUyMHN0YXRpb25lcnklMjBnaWZ0c3xlbnwxfHx8fDE3NjE1ODU3MDV8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-      description: 'Pocket-sized journal for sketches and doodles.',
-      category: 'Small Gifts',
-    },
-    {
-      id: 'eraser-collection',
-      name: 'Eraser Collection',
-      price: 6,
-      image: 'https://images.unsplash.com/photo-1667864811044-b0bcd9ed4a46?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxnaWZ0JTIwYm94JTIwd3JhcHBlZCUyMGNvbG9yZnVsfGVufDF8fHx8MTc2MTU4NTcwNHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-      description: 'Set of 10 fun-shaped artistic erasers.',
-      category: 'Small Gifts',
-    },
-  ];
+      // Check if responses are ok
+      if (!classesRes.ok) throw new Error('Failed to fetch classes');
+      if (!suppliesRes.ok) throw new Error('Failed to fetch supplies');
+      if (!giftsRes.ok) throw new Error('Failed to fetch gifts');
+      if (!returnGiftsRes.ok) throw new Error('Failed to fetch return gifts');
 
-  const returnGifts = [
-    {
-      id: 'party-favor-art-bag',
-      name: 'Party Favor Art Bag',
-      price: 18,
-      quantity: 'Pack of 10',
-      image: 'https://images.unsplash.com/photo-1760220844423-0b449a6c51be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYXJ0eSUyMGZhdm9yJTIwYmFnc3xlbnwxfHx8fDE3NjE1ODU3MDR8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-      description: 'Colorful bags filled with crayons and coloring sheets.',
-      category: 'Party Favors',
-    },
-    {
-      id: 'birthday-bundle',
-      name: 'Birthday Bundle',
-      price: 35,
-      quantity: 'Pack of 12',
-      image: 'https://images.unsplash.com/photo-1759433581610-801ca7bbd28f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxraWRzJTIwcGFydHklMjBnaWZ0c3xlbnwxfHx8fDE3NjE1ODU3MDR8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-      description: 'Mini paint sets and stickers for birthday parties.',
-      category: 'Party Favors',
-    },
-    {
-      id: 'craft-party-kit',
-      name: 'Craft Party Kit',
-      price: 45,
-      quantity: 'Pack of 15',
-      image: 'https://images.unsplash.com/photo-1667864811044-b0bcd9ed4a46?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxnaWZ0JTIwYm94JTIwd3JhcHBlZCUyMGNvbG9yZnVsfGVufDF8fHx8MTc2MTU4NTcwNHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-      description: 'DIY craft kits perfect for party return gifts.',
-      category: 'Party Favors',
-    },
-    {
-      id: 'drawing-goodie-bags',
-      name: 'Drawing Goodie Bags',
-      price: 25,
-      quantity: 'Pack of 10',
-      image: 'https://images.unsplash.com/photo-1744898130445-e6ccb0df1ba0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xvcmZ1bCUyMHN0YXRpb25lcnklMjBnaWZ0c3xlbnwxfHx8fDE3NjE1ODU3MDV8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-      description: 'Sketching pencils and mini pads for young artists.',
-      category: 'Party Favors',
-    },
-  ];
+      const classesData = await classesRes.json();
+      const suppliesData = await suppliesRes.json();
+      const giftsData = await giftsRes.json();
+      const returnGiftsData = await returnGiftsRes.json();
 
+      if (classesData.success) setClasses(classesData.data);
+      if (suppliesData.success) setSupplies(suppliesData.data);
+      if (giftsData.success) setSmallGifts(giftsData.data);
+      if (returnGiftsData.success) setReturnGifts(returnGiftsData.data);
+
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      // You can also show a toast notification to the user
+      toast.error('Failed to load products. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
   return (
     <div className="pt-16">
       {/* Hero Section */}
@@ -238,7 +122,7 @@ export function ProductsPage({ onNavigate }: ProductsPageProps = {}) {
                 )}
               </div>
               <CardContent className="pt-6">
-                <h3 className="text-xl mb-2">{course.title}</h3>
+                <h3 className="text-xl mb-2">{course.name}</h3>
                 <div className="flex items-center gap-1 mb-3">
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   <span className="text-sm">{course.rating}</span>
@@ -248,11 +132,11 @@ export function ProductsPage({ onNavigate }: ProductsPageProps = {}) {
                 <div className="space-y-2 mb-4 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
                     <Users className="w-4 h-4" />
-                    <span>Ages {course.age}</span>
+                    <span>Ages {course.ageRange }</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4" />
-                    <span>{course.duration} • {course.students}</span>
+                    <span>{course.duration} • {course.maxStudents}</span>
                   </div>
                 </div>
 
@@ -262,13 +146,13 @@ export function ProductsPage({ onNavigate }: ProductsPageProps = {}) {
                     onClick={() => {
                       addToCart({
                         id: course.id,
-                        name: course.title,
+                        name: course.name,
                         price: course.price,
                         type: 'program',
                         duration: course.duration,
-                        age: course.age,
+                        age: course.ageRange ,
                       });
-                      toast.success(`${course.title} added to cart!`);
+                      toast.success(`${course.name} added to cart!`);
                     }}
                     className="bg-purple-600 hover:bg-purple-700"
                   >
@@ -347,7 +231,7 @@ export function ProductsPage({ onNavigate }: ProductsPageProps = {}) {
             <Card key={index} className="hover:shadow-xl transition-shadow flex flex-col">
               <div className="h-40">
                 <ImageWithFallback
-                  src={gift.image}
+                  src={gift.imageUrl}
                   alt={gift.name}
                   className="w-full h-full object-cover rounded-t-lg"
                 />
@@ -396,7 +280,7 @@ export function ProductsPage({ onNavigate }: ProductsPageProps = {}) {
               <Card key={index} className="hover:shadow-xl transition-shadow bg-white flex flex-col">
                 <div className="h-56">
                   <ImageWithFallback
-                    src={gift.image}
+                    src={gift.imageUrl}
                     alt={gift.name}
                     className="w-full h-full object-cover rounded-t-lg"
                   />

@@ -1,0 +1,46 @@
+{
+  "kind": "collectionType",
+  "collectionName": "art_classes",
+  "info": {
+    "singularName": "art-class",
+    "pluralName": "art-classes",
+    "displayName": "Art Class"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    },
+    "ageRange": {
+      "type": "string"
+    },
+    "duration": {
+      "type": "string"
+    },
+    "price": {
+      "type": "decimal"
+    },
+    "maxStudents": {
+      "type": "string"
+    },
+    "rating": {
+      "type": "decimal"
+    },
+    "description": {
+      "type": "text"
+    },
+    "popular": {
+      "type": "boolean"
+    },
+    "imageUrl": {
+      "type": "string"
+    }
+  }
+}

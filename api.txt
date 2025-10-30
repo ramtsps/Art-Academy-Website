@@ -1,0 +1,4 @@
+http://localhost:1337/api/art-classes
+http://localhost:1337/api/small-gifts
+http://localhost:1337/api/art-supplies
+http://localhost:1337/api/return-gifts
