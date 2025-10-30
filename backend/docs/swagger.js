@@ -17,7 +17,7 @@ const options = {
     servers: [
       {
         url: process.env.NODE_ENV === 'production' 
-          ? `https://${process.env.RENDER_EXTERNAL_URL || 'your-app.onrender.com'}` 
+          ? `https://${process.env.RENDER_EXTERNAL_URL || 'art-academy-website-krh5.vercel.app'}` 
           : `http://localhost:${process.env.PORT || 5000}`,
         description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server'
       }
