@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { swaggerUi, specs } = require('./docs/swagger');
+const { swaggerUi, specs, swaggerOptions } = require('./docs/swagger');
 const { CORS_ORIGINS } = require('./config/constants');
 
 // Route imports
@@ -16,12 +16,20 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Swagger Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
-  explorer: true,
-  customCss: '.swagger-ui .topbar { display: none }'
-}));
+// FIX: Swagger Documentation with proper setup
+app.use('/api-docs', swaggerUi.serve, (req, res, next) => {
+  // Serve Swagger UI with custom options
+  const swaggerHtml = swaggerUi.generateHTML(specs, swaggerOptions);
+  res.send(swaggerHtml);
+});
+
 console.log('✅ Swagger UI available at /api-docs');
+
+// Alternative JSON endpoint for Swagger spec
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(specs);
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -36,7 +44,8 @@ app.get('/api/health', async (req, res) => {
       success: true, 
       message: 'Server is healthy',
       database: 'Connected',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development'
     });
   } catch (error) {
     res.status(503).json({ 
@@ -48,8 +57,8 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// FIXED: 404 handler - Use app.use without path instead of app.all('*')
-app.use((req, res, next) => {
+// 404 handler
+app.use((req, res) => {
   res.status(404).json({
     success: false,
     error: `Route ${req.method} ${req.originalUrl} not found`
@@ -61,7 +70,7 @@ app.use((error, req, res, next) => {
   console.error('Error:', error);
   res.status(500).json({
     success: false,
-    error: 'Internal server error'
+    error: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message
   });
 });
 

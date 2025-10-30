@@ -1,6 +1,6 @@
 module.exports = {
   JWT_SECRET: process.env.JWT_SECRET || 'your-jwt-secret-key',
-  STRAPI_URL: process.env.STRAPI_URL || 'http://localhost:1337',
+  STRAPI_URL: process.env.STRAPI_URL || 'https://art-academy-website.onrender.com',
   CORS_ORIGINS: [
     process.env.FRONTEND_URL,
     "https://primiyas-art.vercel.app",
